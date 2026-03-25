@@ -1,0 +1,334 @@
+<Window x:Class="Contacts.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:Contacts.Converters"
+        Title="Contacts Manager" Height="760" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#EEF2F7">
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- ── Shared Styles ── -->
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background"     Value="White"/>
+            <Setter Property="CornerRadius"   Value="8"/>
+            <Setter Property="Padding"        Value="14"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#CBD5E0" BlurRadius="10"
+                                      ShadowDepth="2" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="FontSize"     Value="11"/>
+            <Setter Property="FontWeight"   Value="SemiBold"/>
+            <Setter Property="Foreground"   Value="#718096"/>
+            <Setter Property="Margin"       Value="0,0,0,4"/>
+        </Style>
+
+        <Style x:Key="ComboStyle" TargetType="ComboBox">
+            <Setter Property="Padding"  Value="6,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin"   Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Padding"      Value="14,6"/>
+            <Setter Property="FontSize"     Value="12"/>
+            <Setter Property="FontWeight"   Value="SemiBold"/>
+            <Setter Property="Cursor"       Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="ResultBox" TargetType="TextBlock">
+            <Setter Property="FontSize"    Value="12"/>
+            <Setter Property="Foreground"  Value="#2D3748"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══════════════════ HEADER ══════════════════ -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,12"
+                Background="#4F80C8" CornerRadius="8" Padding="18,12">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="📋" FontSize="24" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <StackPanel>
+                    <TextBlock Text="Contacts Manager" FontSize="20" FontWeight="Bold"
+                               Foreground="White"/>
+                    <TextBlock Text="LINQ-powered in-memory collection" FontSize="11"
+                               Foreground="#BFD3F0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ══════════════════ LEFT PANEL (LINQ controls) ══════════════════ -->
+        <ScrollViewer Grid.Row="1" Grid.Column="0" VerticalScrollBarVisibility="Auto"
+                      Margin="0,0,12,0">
+            <StackPanel>
+
+                <!-- ── FILTER ── -->
+                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="🔍  FILTER" Style="{StaticResource SectionLabel}"/>
+                        <ComboBox ItemsSource="{Binding FilterOptions}"
+                                  SelectedItem="{Binding SelectedFilter}"
+                                  Style="{StaticResource ComboStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── SORT ── -->
+                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="↕  SORT" Style="{StaticResource SectionLabel}"/>
+                        <ComboBox ItemsSource="{Binding SortOptions}"
+                                  SelectedItem="{Binding SelectedSort}"
+                                  Style="{StaticResource ComboStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── PROJECTION ── -->
+                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="📐  PROJECTION" Style="{StaticResource SectionLabel}"/>
+                        <ComboBox ItemsSource="{Binding ProjectionOptions}"
+                                  SelectedItem="{Binding SelectedProjection}"
+                                  Style="{StaticResource ComboStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── QUANTIFIER ── -->
+                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="❓  QUANTIFIER / CHECK" Style="{StaticResource SectionLabel}"/>
+                        <ComboBox ItemsSource="{Binding QuantifierOptions}"
+                                  SelectedItem="{Binding SelectedQuantifier}"
+                                  Style="{StaticResource ComboStyle}"/>
+                        <Border Background="#EDF2FF" CornerRadius="4" Padding="8,6">
+                            <TextBlock Text="{Binding QuantifierResult}"
+                                       Style="{StaticResource ResultBox}"
+                                       Foreground="#3B4FBF"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── AGGREGATION ── -->
+                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="∑  AGGREGATION" Style="{StaticResource SectionLabel}"/>
+                        <ComboBox ItemsSource="{Binding AggregationOptions}"
+                                  SelectedItem="{Binding SelectedAggregation}"
+                                  Style="{StaticResource ComboStyle}"/>
+                        <Border Background="#F0FFF4" CornerRadius="4" Padding="8,6">
+                            <TextBlock Text="{Binding AggregationResult}"
+                                       Style="{StaticResource ResultBox}"
+                                       Foreground="#276749"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── APPLY BUTTON ── -->
+                <Button Content="▶  Apply LINQ"
+                        Command="{Binding ApplyLinqCommand}"
+                        Style="{StaticResource ActionBtn}"
+                        Background="#4F80C8" Foreground="White"
+                        Margin="0,0,0,10"/>
+
+                <!-- ── SUMMARY ── -->
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="📊  SUMMARY" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Text="{Binding LinqResultText}"
+                                   Style="{StaticResource ResultBox}"
+                                   FontFamily="Consolas" FontSize="11"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ══════════════════ RIGHT PANEL (DataGrid + CRUD) ══════════════════ -->
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- CRUD Toolbar -->
+            <Border Grid.Row="0" Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="➕ Add"
+                            Command="{Binding AddContactCommand}"
+                            Style="{StaticResource ActionBtn}"
+                            Background="#38A169" Foreground="White" Margin="0,0,8,0"/>
+                    <Button Content="✏️ Edit"
+                            Command="{Binding EditContactCommand}"
+                            Style="{StaticResource ActionBtn}"
+                            Background="#ECC94B" Foreground="#2D3748" Margin="0,0,8,0"/>
+                    <Button Content="🗑️ Delete"
+                            Command="{Binding DeleteContactCommand}"
+                            Style="{StaticResource ActionBtn}"
+                            Background="#E53E3E" Foreground="White"/>
+                </StackPanel>
+            </Border>
+
+            <!-- DataGrid -->
+            <Border Grid.Row="1" Style="{StaticResource CardBorder}">
+                <DataGrid x:Name="ContactGrid"
+                          ItemsSource="{Binding DisplayedContacts}"
+                          SelectedItem="{Binding SelectedContact}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          AlternatingRowBackground="#F7FAFC"
+                          RowBackground="White"
+                          FontSize="12"
+                          BorderThickness="0"
+                          ColumnHeaderHeight="36">
+
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background"   Value="#4F80C8"/>
+                            <Setter Property="Foreground"   Value="White"/>
+                            <Setter Property="FontWeight"   Value="SemiBold"/>
+                            <Setter Property="Padding"      Value="8,0"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID"
+                                            Binding="{Binding Id}"
+                                            Width="40"/>
+                        <DataGridTextColumn Header="First Name"
+                                            Binding="{Binding FirstName}"
+                                            Width="100"/>
+                        <DataGridTextColumn Header="Last Name"
+                                            Binding="{Binding LastName}"
+                                            Width="120"/>
+
+                        <DataGridTextColumn Header="Email"
+                                            Binding="{Binding Email}"
+                                            Width="180">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowEmail,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowEmail,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Phone"
+                                            Binding="{Binding Phone}"
+                                            Width="110">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowPhone,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowPhone,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="City"
+                                            Binding="{Binding City}"
+                                            Width="90">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowCity,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowCity,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Age"
+                                            Binding="{Binding Age}"
+                                            Width="50">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowAge,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowAge,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Group"
+                                            Binding="{Binding Group}"
+                                            Width="80">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowGroup,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="Visibility"
+                                            Value="{Binding DataContext.ShowGroup,
+                                                   RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                   Converter={StaticResource BoolToVis}}"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
