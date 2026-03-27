@@ -25,9 +25,8 @@ public partial class MainViewModel : ObservableObject
     // ─── Filter ──────────────────────────────────────────────────────────────
     public static IReadOnlyList<string> FilterOptions { get; } = new[]
     {
-        "No Filter",
-        "By City (Warsaw)"
-     
+        "No Filter"
+        "Age > 30"
     };
 
     [ObservableProperty]
@@ -35,19 +34,21 @@ public partial class MainViewModel : ObservableObject
 
     // ─── Sort ────────────────────────────────────────────────────────────────
     public static IReadOnlyList<string> SortOptions { get; } = new[]
-    {
-        "Last Name (A→Z)",
-        "Last Name (Z→A)"
+        "Last Name (A→Z)"
+        "Last Name (Z→A)",
+        "Age Ascending",
+        "Age Descending"
     };
 
     [ObservableProperty]
     private string _selectedSort = "Last Name (A→Z)";
 
-    // ─── Projection ──────────────────────────────────────────────────────────
-    public static IReadOnlyList<string> ProjectionOptions { get; } = new[]
+        "All Columns"
     {
         "All Columns",
-        "Full Name + Email"
+        "Full Name + Email",
+        "Full Name + City",
+        "Full Name + Age"
     };
 
     [ObservableProperty]
