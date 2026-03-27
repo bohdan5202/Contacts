@@ -25,7 +25,9 @@ public partial class MainViewModel : ObservableObject
     // ─── Filter ──────────────────────────────────────────────────────────────
     public static IReadOnlyList<string> FilterOptions { get; } = new[]
     {
-        "No Filter"
+        "No Filter",
+        "By City (Warsaw)",
+        "By Group (Work)",
         "Age > 30"
     };
 
@@ -34,7 +36,8 @@ public partial class MainViewModel : ObservableObject
 
     // ─── Sort ────────────────────────────────────────────────────────────────
     public static IReadOnlyList<string> SortOptions { get; } = new[]
-        "Last Name (A→Z)"
+    {
+        "Last Name (A→Z)",
         "Last Name (Z→A)",
         "Age Ascending",
         "Age Descending"
@@ -43,7 +46,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _selectedSort = "Last Name (A→Z)";
 
-        "All Columns"
+    // ─── Projection ──────────────────────────────────────────────────────────
+    public static IReadOnlyList<string> ProjectionOptions { get; } = new[]
     {
         "All Columns",
         "Full Name + Email",
@@ -55,16 +59,18 @@ public partial class MainViewModel : ObservableObject
     private string _selectedProjection = "All Columns";
 
     // Column visibility (driven by projection)
-    [ObservableProperty] private bool _showEmail  = true;
-    [ObservableProperty] private bool _showPhone  = true;
-    [ObservableProperty] private bool _showCity   = true;
-    [ObservableProperty] private bool _showAge    = true;
-    [ObservableProperty] private bool _showGroup  = true;
+    [ObservableProperty] private bool _showEmail = true;
+    [ObservableProperty] private bool _showPhone = true;
+    [ObservableProperty] private bool _showCity = true;
+    [ObservableProperty] private bool _showAge = true;
+    [ObservableProperty] private bool _showGroup = true;
 
     // ─── Quantifier ──────────────────────────────────────────────────────────
     public static IReadOnlyList<string> QuantifierOptions { get; } = new[]
     {
-        "Any contact in Warsaw?"
+        "Any contact in Warsaw?",
+        "All contacts have email?",
+        "No contacts under 18?"
     };
 
     [ObservableProperty]
@@ -76,7 +82,9 @@ public partial class MainViewModel : ObservableObject
     // ─── Aggregation ─────────────────────────────────────────────────────────
     public static IReadOnlyList<string> AggregationOptions { get; } = new[]
     {
-        "Average Age"
+        "Average Age",
+        "Oldest Contact",
+        "Total Contacts"
     };
 
     [ObservableProperty]
@@ -106,14 +114,18 @@ public partial class MainViewModel : ObservableObject
         query = SelectedFilter switch
         {
             "By City (Warsaw)" => query.Where(c => c.City == "Warsaw"),
-            _                  => query   // "No Filter"
+            "By Group (Work)" => query.Where(c => c.Group == "Work"),
+            "Age > 30" => query.Where(c => c.Age > 30),
+            _ => query   // "No Filter"
         };
 
         // 2. SORT ────────────────────────────────────────────────────────────
         query = SelectedSort switch
         {
-            "Last Name (Z→A)"  => query.OrderByDescending(c => c.LastName),
-            _                  => query.OrderBy(c => c.LastName)   // A→Z default
+            "Last Name (Z→A)" => query.OrderByDescending(c => c.LastName),
+            "Age Ascending" => query.OrderBy(c => c.Age),
+            "Age Descending" => query.OrderByDescending(c => c.Age),
+            _ => query.OrderBy(c => c.LastName)   // A→Z default
         };
 
         // 3. PROJECTION – apply column visibility flags ──────────────────────
@@ -127,13 +139,14 @@ public partial class MainViewModel : ObservableObject
         // 4. QUANTIFIER ──────────────────────────────────────────────────────
         bool quantResult = SelectedQuantifier switch
         {
-            "All contacts have email?" => AllContacts.All(c => !string.IsNullOrWhiteSpace(c.Email)),
-            _                         => AllContacts.Any(c => c.City == "Warsaw")
+            "All contacts have email?" => DisplayedContacts.All(c => !string.IsNullOrWhiteSpace(c.Email)),
+            "No contacts under 18?" => !DisplayedContacts.Any(c => c.Age < 18),
+            _ => DisplayedContacts.Any(c => c.City == "Warsaw")
         };
         QuantifierResult = $"{SelectedQuantifier}  →  {quantResult}";
 
         // 5. AGGREGATION ─────────────────────────────────────────────────────
-        if (AllContacts.Count == 0)
+        if (DisplayedContacts.Count == 0)
         {
             AggregationResult = "No contacts.";
         }
@@ -141,8 +154,9 @@ public partial class MainViewModel : ObservableObject
         {
             AggregationResult = SelectedAggregation switch
             {
-                "Oldest Contact"  => $"Oldest: {AllContacts.Max(c => c.Age)} years",
-                _                 => $"Avg Age: {AllContacts.Average(c => c.Age):F1} years"
+                "Oldest Contact" => $"Oldest: {DisplayedContacts.Max(c => c.Age)} years",
+                "Total Contacts" => $"Total: {DisplayedContacts.Count()} contact(s)",
+                _ => $"Avg Age: {DisplayedContacts.Average(c => c.Age):F1} years"
             };
         }
 
@@ -155,12 +169,20 @@ public partial class MainViewModel : ObservableObject
         switch (SelectedProjection)
         {
             case "Full Name + Email":
-                ShowEmail = true;  ShowPhone = false;
-                ShowCity  = false; ShowAge   = false; ShowGroup = false;
+                ShowEmail = true; ShowPhone = false;
+                ShowCity = false; ShowAge = false; ShowGroup = false;
+                break;
+            case "Full Name + City":
+                ShowEmail = false; ShowPhone = false;
+                ShowCity = true; ShowAge = false; ShowGroup = false;
+                break;
+            case "Full Name + Age":
+                ShowEmail = false; ShowPhone = false;
+                ShowCity = false; ShowAge = true; ShowGroup = false;
                 break;
             default: // All Columns
                 ShowEmail = true; ShowPhone = true;
-                ShowCity  = true; ShowAge   = true; ShowGroup = true;
+                ShowCity = true; ShowAge = true; ShowGroup = true;
                 break;
         }
     }
@@ -181,7 +203,7 @@ public partial class MainViewModel : ObservableObject
 
     // Signals for the View to open dialogs
     public event Action<Contact?>? OpenAddDialog;
-    public event Action<Contact>?  OpenEditDialog;
+    public event Action<Contact>? OpenEditDialog;
 
     [RelayCommand]
     private void AddContact() => OpenAddDialog?.Invoke(null);
