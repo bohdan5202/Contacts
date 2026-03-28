@@ -10,19 +10,29 @@ namespace Contacts.Models;
 public class ContactRepository
 {
     private int _nextId = 1;
+    private readonly AppDbContext _db;
 
     public ObservableCollection<Contact> Contacts { get; } = new();
 
     public ContactRepository()
     {
-        Seed();
+        _db = new AppDbContext();
+        _db.Database.EnsureCreated();
+
+        foreach (var c in _db.Contacts)
+        {
+            Contacts.Add(c);
+        }
+        if (!Contacts.Any())
+            Seed();
     }
 
     // ─── CRUD ────────────────────────────────────────────────────────────────
 
     public void Add(Contact contact)
     {
-        contact.Id = _nextId++;
+        _db.Contacts.Add(contact);
+        _db.SaveChanges();
         Contacts.Add(contact);
     }
 
@@ -35,10 +45,15 @@ public class ContactRepository
         existing.City      = updated.City;
         existing.Age       = updated.Age;
         existing.Group     = updated.Group;
+        _db.SaveChanges();
     }
 
-    public void Delete(Contact contact) => Contacts.Remove(contact);
-
+    public void Delete(Contact contact)
+    {
+        _db.Contacts.Remove(contact);
+        _db.SaveChanges(); 
+        Contacts.Remove(contact);
+    }
     // ─── Seed data ───────────────────────────────────────────────────────────
 
     private void Seed()
