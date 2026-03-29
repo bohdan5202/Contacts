@@ -8,6 +8,8 @@ namespace Contacts.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
+
+    public List<Models.Group> GetGroups() => _repo.GetGroups();
     // ─── Repository ──────────────────────────────────────────────────────────
     private readonly ContactRepository _repo = new();
 
@@ -114,7 +116,7 @@ public partial class MainViewModel : ObservableObject
         query = SelectedFilter switch
         {
             "By City (Warsaw)" => query.Where(c => c.City == "Warsaw"),
-            "By Group (Work)" => query.Where(c => c.Group == "Work"),
+            "By Group (Work)" => query.Where(c => c.Group != null && c.Group.Name == "Work"),
             "Age > 30" => query.Where(c => c.Age > 30),
             _ => query   // "No Filter"
         };

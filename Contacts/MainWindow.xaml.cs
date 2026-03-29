@@ -22,14 +22,16 @@ public partial class MainWindow : Window
 
     private void OnOpenAddDialog(Models.Contact? _)
     {
-        var dlg = new ContactDialog { Owner = this };
+        var groups = _vm.GetGroups();
+        var dlg = new ContactDialog(groups) { Owner = this };
         if (dlg.ShowDialog() == true)
             _vm.SaveNewContact(dlg.Result);
     }
 
     private void OnOpenEditDialog(Models.Contact contact)
     {
-        var dlg = new ContactDialog(contact) { Owner = this };
+        var groups = _vm.GetGroups();
+        var dlg = new ContactDialog(groups, contact) { Owner = this };
         if (dlg.ShowDialog() == true)
             _vm.SaveEditedContact(contact, dlg.Result);
     }

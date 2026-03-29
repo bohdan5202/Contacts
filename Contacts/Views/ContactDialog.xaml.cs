@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using Contacts.Models;
@@ -6,12 +7,17 @@ namespace Contacts.Views;
 
 public partial class ContactDialog : Window
 {
+    private readonly List<Models.Group> _groups;
     public Contact Result { get; private set; } = new();
 
-    public ContactDialog(Contact? existing = null)
+    public ContactDialog(List<Models.Group> groups, Contact? existing = null)
     {
         InitializeComponent();
 
+        _groups = groups;
+
+        CmbGroup.ItemsSource = _groups;
+        CmbGroup.DisplayMemberPath = "Name";
         if (existing is not null)
         {
             TxtFirstName.Text = existing.FirstName;
@@ -21,13 +27,8 @@ public partial class ContactDialog : Window
             TxtCity.Text      = existing.City;
             TxtAge.Text       = existing.Age.ToString();
 
-            // Select matching group item
-            foreach (ComboBoxItem item in CmbGroup.Items)
-                if (item.Content?.ToString() == existing.Group)
-                {
-                    CmbGroup.SelectedItem = item;
-                    break;
-                }
+            CmbGroup.SelectedItem = _groups.FirstOrDefault(g => g.Id == existing.GroupId);
+
 
             Title = "Edit Contact";
         }
@@ -55,6 +56,7 @@ public partial class ContactDialog : Window
             return;
         }
 
+        var selectedGroup = CmbGroup.SelectedItem as Models.Group;
         Result = new Contact
         {
             FirstName = TxtFirstName.Text.Trim(),
@@ -63,7 +65,8 @@ public partial class ContactDialog : Window
             Phone     = TxtPhone.Text.Trim(),
             City      = TxtCity.Text.Trim(),
             Age       = age,
-            Group     = (CmbGroup.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Friend"
+            GroupId = selectedGroup?.Id ?? 1,
+            Group = selectedGroup
         };
 
         DialogResult = true;

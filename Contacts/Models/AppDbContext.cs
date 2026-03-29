@@ -11,6 +11,7 @@ namespace Contacts.Models
     {
 
         public DbSet<Contact> Contacts { get; set; } = null!;
+        public DbSet<Group> Groups { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=contacts.db");

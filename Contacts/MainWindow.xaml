@@ -307,7 +307,7 @@
                         </DataGridTextColumn>
 
                         <DataGridTextColumn Header="Group"
-                                            Binding="{Binding Group}"
+                                            Binding="{Binding Group.Name}"
                                             Width="80">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">

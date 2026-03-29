@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Contacts.Models;
@@ -25,9 +26,8 @@ public partial class Contact : ObservableObject
     [ObservableProperty]
     private int _age;
 
-    [ObservableProperty]
-    private string _group = string.Empty; // e.g. "Family", "Work", "Friend"
-
+    public int GroupId { get; set; }
+    public Group? Group { get; set; }
     public string FullName => $"{FirstName} {LastName}";
 
     public Contact Clone() => new Contact
@@ -39,6 +39,6 @@ public partial class Contact : ObservableObject
         Phone     = Phone,
         City      = City,
         Age       = Age,
-        Group     = Group
+        GroupId = GroupId
     };
 }
